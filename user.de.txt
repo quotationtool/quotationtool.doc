@@ -1,0 +1,62 @@
+Rechte verwalten
+================
+
+In ice.controle als 'admin' anmelden an auf quotationtool
+klicken. Dann mit REPL die python-shell starten.
+
+zuerst das site-Objekt laden:
+
+>>> from zope.app.component.hooks import getSite()
+>>> s = getSite()
+>>> s
+<quotationtool.site.site.QuotationtoolSite object at 0x2508668>
+
+Dann einfach den richtigen Manager für Rollen laden. Die entscheidende
+Rolle hat die ID 'quotationtool.Editor'. Die Namen der Principals
+haben den prefix 'pau.users.'.
+
+>>> from zope.securitypolicy.interfaces import IPrincipalRoleManager
+
+Rechte gewähren
+---------------
+
+Jetzt kann man die Rechte (besser: Rolle) gewähren:
+
+>>> IPrincipalRoleManager(s).assignRoleToPrincipal('quotationtool.Editor', 'pau.users.risthpbk')
+
+Nicht vergessen: commit() ausführen! Andernfalls werden die Änderungen
+nicht wirksam.
+
+>>> from transaction import commit
+>>> commit()
+
+
+Verweigern von Rechten
+----------------------
+
+removeRoleFromPrincipal() - das löscht aber nicht den Eintrag, sondern
+setzt ihn auf 'Deny'. Siehe unten.
+
+>>> IPrincipalRoleManager(s).removeRoleFromPrincipal('quotationtool.Editor', 'pau.users.nmenzler')
+>>> commit()
+
+
+Rechte Anzeigen
+---------------
+
+>>> IPrincipalRoleManager(s).getPrincipalsForRole('quotationtool.Editor')
+[('pau.users.lbullmann', PermissionSetting: Allow), ('pau.users.Sebastian', PermissionSetting: Deny), ('Jessica', PermissionSetting: Deny), ('pau.users.mniehaus', PermissionSetting: Allow), ('pau.users.Jessica', PermissionSetting: Allow), ('pau.users.Eva-MariaSpiller', PermissionSetting: Deny), ('pau.users.pristhaus', PermissionSetting: Allow), ('pau.users.kressply', PermissionSetting: Allow), ('pau.users.risthpbk2', PermissionSetting: Allow), ('pau.users.risthpbk', PermissionSetting: Allow), ('pau.users.shetheier', PermissionSetting: Deny), ('pau.users.nmenzler', PermissionSetting: Deny), ('pau.users.mschneider', PermissionSetting: Allow), ('pau.users.clueck', PermissionSetting: Allow)]
+
+
+Um Principals ganz aus der Liste zu löschen: unsetRoleForPrincipal() benutzen:
+
+>>> IPrincipalRoleManager(s).unsetRoleForPrincipal('quotationtool.Editor', 'pau.users.nmenzler')
+
+Und für noch andere
+
+>>> commit()
+
+Anzeigen:
+
+>>> IPrincipalRoleManager(s).getPrincipalsForRole('quotationtool.Editor')
+[('pau.users.lbullmann', PermissionSetting: Allow), ('pau.users.mniehaus', PermissionSetting: Allow), ('pau.users.Jessica', PermissionSetting: Allow), ('pau.users.pristhaus', PermissionSetting: Allow), ('pau.users.kressply', PermissionSetting: Allow), ('pau.users.risthpbk2', PermissionSetting: Allow), ('pau.users.risthpbk', PermissionSetting: Allow), ('pau.users.mschneider', PermissionSetting: Allow), ('pau.users.clueck', PermissionSetting: Allow)]
